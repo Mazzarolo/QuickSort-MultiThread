@@ -5,7 +5,7 @@
 
 #define TAM 100000000
 #define NUM_THREADS 2
-#define NUM_CAMADAS_THREADS 1
+#define NUM_CAMADAS_THREADS 2
 
 typedef struct params
 {
@@ -142,35 +142,36 @@ void *quick_sort_par(void *params)
 
      if (j > esq)
      {
-          printf ("\nRodando...");
+          printf("\nRodando...");
           Params p1;
           p1.dir = j;
           p1.esq = esq;
           p1.vet = vet;
           p1.th = th;
-          if (th > 0)
-               pthread_create(&(threads[0]), NULL, quick_sort_par, (void *) &p1);
-          else
-               pthread_create(&(threads[0]), NULL, quick_sort, (void *) &p1);
+          if (th > 0) {
+               pthread_create(&(threads[0]), NULL, quick_sort_par, (void *)&p1);
+          } else {
+               pthread_create(&(threads[0]), NULL, quick_sort, (void *)&p1);
+          }
      }
 
      if (i < dir)
      {
-          printf ("\nRodando...");
+          printf("\nRodando...");
           Params p2;
           p2.dir = dir;
           p2.esq = i;
           p2.vet = vet;
           p2.th = th;
-          if (th > 0)
-               pthread_create(&(threads[1]), NULL, quick_sort_par, (void *) &p2);
-          else
-               pthread_create(&(threads[1]), NULL, quick_sort, (void *) &p2);
+          if (th > 0) {
+               pthread_create(&(threads[1]), NULL, quick_sort_par, (void *)&p2);
+          } else {
+               pthread_create(&(threads[1]), NULL, quick_sort, (void *)&p2);
+          }
      }
-     
+
      pthread_join(threads[0], NULL);
      pthread_join(threads[1], NULL);
-     
 }
 
 void ordena(int *vet, int tam)
