@@ -22,7 +22,7 @@ void genVet(int *vet, int tam)
     srand(time(NULL));
     for (int i = 0; i < tam; i++)
     {
-        vet[i] = rand() % TAM;
+        vet[i] = rand() % 100;
     }
 }
 

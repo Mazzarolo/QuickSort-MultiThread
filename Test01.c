@@ -149,7 +149,7 @@ void *quick_sort_par(void *params)
           p1.vet = vet;
           p1.th = th;
           if (th > 0)
-               pthread_create(&(threads[0]), NULL, quick_sort_par, (void *)p);
+               pthread_create(&(threads[0]), NULL, quick_sort_par, (void *) &p1);
           else
                pthread_create(&(threads[0]), NULL, quick_sort, (void *) &p1);
      }
@@ -163,7 +163,7 @@ void *quick_sort_par(void *params)
           p2.vet = vet;
           p2.th = th;
           if (th > 0)
-               pthread_create(&(threads[1]), NULL, quick_sort_par, (void *)p);
+               pthread_create(&(threads[1]), NULL, quick_sort_par, (void *) &p2);
           else
                pthread_create(&(threads[1]), NULL, quick_sort, (void *) &p2);
      }
