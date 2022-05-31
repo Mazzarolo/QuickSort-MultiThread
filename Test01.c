@@ -5,12 +5,14 @@
 
 #define TAM 100000000
 #define NUM_THREADS 2
+#define NUM_CAMADAS_THREADS 1
 
 typedef struct params
 {
      int *vet;
      int esq;
      int dir;
+     int th;
 } Params;
 
 void mostra(int *vet, int tam)
@@ -39,10 +41,10 @@ int modulo(int n)
           return -n;
 }
 
-int findPivot(int *vet, int tam)
+int findPivot(int *vet, int ini, int fim)
 {
-     int max = vet[0], min = vet[0], idx = 0;
-     for (int i = 0; i < tam; i++)
+     int max = vet[ini], min = vet[ini], idx = ini;
+     for (int i = ini; i < fim; i++)
      {
           if (vet[i] > max)
                max = vet[i];
@@ -50,8 +52,8 @@ int findPivot(int *vet, int tam)
                min = vet[i];
      }
      int med = (max + min) / 2;
-     int aprox = modulo(med - vet[0]);
-     for (int i = 0; i < tam; i++)
+     int aprox = modulo(med - vet[ini]);
+     for (int i = ini; i < fim; i++)
      {
           if (modulo(med - vet[i]) < aprox)
           {
@@ -111,13 +113,15 @@ void *quick_sort_par(void *params)
      int *vet = p->vet;
      int esq = p->esq;
      int dir = p->dir;
-     int pivot = vet[findPivot(vet, dir)];
+     int pivot = vet[findPivot(vet, esq, (dir + 1))];
      int i = esq;
      int j = dir;
      if (esq >= dir)
           return NULL;
 
      pthread_t threads[NUM_THREADS]; // vetor de threads
+     p->th -= 1;
+     int th = p->th;
 
      do
      {
@@ -138,20 +142,35 @@ void *quick_sort_par(void *params)
 
      if (j > esq)
      {
-          p->dir = j;
-          pthread_create(&(threads[0]), NULL, quick_sort, (void *)p);
+          printf ("\nRodando...");
+          Params p1;
+          p1.dir = j;
+          p1.esq = esq;
+          p1.vet = vet;
+          p1.th = th;
+          if (th > 0)
+               pthread_create(&(threads[0]), NULL, quick_sort_par, (void *)p);
+          else
+               pthread_create(&(threads[0]), NULL, quick_sort, (void *) &p1);
      }
 
      if (i < dir)
      {
-          p->esq = i;
-          p->dir = dir;
-          pthread_create(&(threads[1]), NULL, quick_sort, (void *)p);
-          quick_sort((void *)p);
+          printf ("\nRodando...");
+          Params p2;
+          p2.dir = dir;
+          p2.esq = i;
+          p2.vet = vet;
+          p2.th = th;
+          if (th > 0)
+               pthread_create(&(threads[1]), NULL, quick_sort_par, (void *)p);
+          else
+               pthread_create(&(threads[1]), NULL, quick_sort, (void *) &p2);
      }
-
+     
      pthread_join(threads[0], NULL);
      pthread_join(threads[1], NULL);
+     
 }
 
 void ordena(int *vet, int tam)
@@ -161,8 +180,9 @@ void ordena(int *vet, int tam)
      p->vet = vet;
      p->esq = 0;
      p->dir = tam - 1;
+     p->th = NUM_CAMADAS_THREADS;
 
-     quick_sort((void *)p);
+     quick_sort_par((void *)p);
 
      free(p);
 }
@@ -185,7 +205,7 @@ int main()
 
      exeTime = (double)(end - begin) / CLOCKS_PER_SEC;
 
-     // mostra(vet, TAM);
+     //mostra(vet, TAM);
 
-     printf("Tempo: %.3f segundos.\n", exeTime);
+     printf("\nTempo: %.3f segundos.\n", exeTime);
 }
